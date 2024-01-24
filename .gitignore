@@ -34,3 +34,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+fonts/PressStart2P-Regular.ttf
+app/pyramid.png
