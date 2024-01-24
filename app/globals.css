@@ -31,3 +31,17 @@ body {
     text-wrap: balance;
   }
 }
+
+
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('../fonts/PressStart2P-Regular.ttf') format('tff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+.customText {
+  font-size: 1.5rem;
+  font-family: 'Press Start 2P';
+}

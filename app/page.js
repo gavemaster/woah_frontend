@@ -1,113 +1,164 @@
-import Image from "next/image";
+'use client';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
+  const triangleImageUrl = 'https://cdn3.iconfinder.com/data/icons/UltimateGnome/256x256/actions/gtk-media-play-ltr.png'; // Replace with your actual image URL
+  const [input, setInput] = useState('');
+  const [output, setOutput] = useState([]);
+  const [typedText, setTypedText] = useState('');
+  const [isTextFullyTyped, setIsTextFullyTyped] = useState(false);
+  const validCommands = {
+    help: "List of available commands: help, command1, command2...",
+    login: "this will prompt login can bypass this by using -u {username} -p {password}",
+    register: "this will prompt register screen.",
+    viewHome: "will go to home screen for non users",
+    clear: "clears previous inputs and outputs"
+    // Add more commands as needed
+  };
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+  }; 
+  const processCommand = (command, extraInput, flags) => {
+    // Check if the command is valid
+    if (command == "help") {
+      return "Help: commands : login = prompts login screen, register = prompts register screen, viewHome = redirects to home page for non users"
+  } else if(command == "login") {
+      if(Object.keys(flags).length == 0 & extraInput === ""){
+        return "redirecting to login........";
+      }else if(Object.keys(flags).length == 2 & extraInput === ""){
+        if(flags.u && flags.p){
+          return `Logging in as ${flags.u} ......`;
+        } else {
+          return `invalid flags for command ${command}`;
+        }
+      }else {
+        return `invalid flags for command ${command}`;
+      }
+  }else if(command == "register"){
+    if(Object.keys(flags).length == 0 & extraInput === ""){
+      return "redirecting to register......";
+    }else{
+      return "Invalid input for command register"
+    }
+    
+  }else if(command == "viewHome"){
+    if(Object.keys(flags).length == 0 & extraInput === ""){
+      return "redirecting to app home......."
+    }else{
+      return "invalid input for command viewHome"
+    }
+
+  }
+}
+
+  const checkCommand = (command) => {
+    if (validCommands[command]) {
+      return true;
+  } else {
+      return false;
+    }
+  }
+
+  const handleCommand = (e) => {
+    if (e.key === 'Enter') {
+      // Split the input into words
+      const inputParts = input.split(' ');
+  
+      // The first word is the command
+      const command = inputParts[0];
+      const valid = checkCommand(command);
+      if(valid & command != "clear"){
+        // Initialize variables for extra input and flags
+        let extraInput = '';
+        let flags = {};
+  
+        // Iterate over the remaining parts
+        for (let i = 1; i < inputParts.length; i++) {
+          if (inputParts[i].startsWith('-')) {
+            // It's a flag; next part is the value
+            const flag = inputParts[i].substring(1); // Remove the '-' from flag
+            const value = inputParts[i + 1] ? inputParts[i + 1] : true; // Assign the next part as value or true
+            flags[flag] = value;
+            i++; // Increment to skip the value in the next iteration
+        }else{
+            // It's extra input
+            extraInput = inputParts[i];
+        }
+      }
+      // Process the command
+      const response = processCommand(command, extraInput, flags);
+      setOutput([...output,
+        <div className='flex items-center'>
+          <span className='mr-2'><img src={triangleImageUrl} className='w-4 h-4'/></span>
+          <span>{input}</span>
+        </div>,
+        response
+      ]);
+      setInput('');
+      }else if(valid & command == "clear"){
+        setOutput([]);
+        setInput('');
+      }else{
+        setOutput([...output,
+          <div className='flex items-center'>
+            <span className='mr-2'><img src={triangleImageUrl} className='w-4 h-4'/></span>
+            <span>{input}</span>
+          </div>,
+          "INVALID COMMAND BOZO"
+        ]);
+        setInput('');
+      }
+  
+      
+    }
+  }
+useEffect(() => {
+      // Simulate typing effect for "WOAH"
+      const textToType = 'WOAH';
+      let currentIndex = 0;
+  
+      const typingInterval = setInterval(() => {
+        if (currentIndex <= textToType.length) {
+          setTypedText(textToType.substring(0, currentIndex));
+          currentIndex++;
+        } else {
+          clearInterval(typingInterval);
+          setIsTextFullyTyped(true);
+        }
+      }, 500); // Adjust the typing speed as needed
+  
+      return () => {
+        clearInterval(typingInterval);
+      };
+    }, []);
+
+  
+
+
+
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+<div className="bg-terminalBlack min-h-screen text-terminalGreen font-Press Start 2P text-sm" >
+    <div className="p-4">
+      <div className="bg-terminalBlack text-terminalGreen font-Press Start 2P text-9xl">{typedText}</div>
+      {output.map((line, index) => (
+        <span key={index}>{line}</span>
+      ))}
+  {isTextFullyTyped && (
+          <div className='flex'>
+            <span className='mr-2'>
+              <img src={triangleImageUrl} className='w-4 h-4' />
+            </span>
+            <input
+              type="text"
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={handleCommand}
+              className="bg-terminalBlack text-terminalGreen focus:outline-none border-none w-full text-sm"
             />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+          </div>
+        )}
+    </div>
+  </div>
   );
 }
