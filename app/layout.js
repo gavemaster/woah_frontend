@@ -1,6 +1,19 @@
 import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
-
+const poppins = localFont({
+  src: [
+    {
+      path: '../public/fonts/PressStart2P-Regular.ttf',
+      weight: '400'
+    },
+    {
+      path: '../public/fonts/PressStart2P-Regular.ttf',
+      weight: '700'
+    }
+  ],
+  variable: '--font-pressStart'
+})
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -10,7 +23,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${poppins.variable}`}>
       <body className={inter.className}>{children}</body>
     </html>
   );
